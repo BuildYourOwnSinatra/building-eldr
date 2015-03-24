@@ -2,6 +2,7 @@ require 'forwardable'
 require_relative 'builder'
 require_relative 'matcher'
 require_relative 'route'
+require_relative 'recognizer'
 
 module Eldr
   class App
