@@ -26,12 +26,28 @@ describe Eldr::Route do
   end
 
   describe '#call' do
-    let(:route) do
-      Eldr::Route.new(handler: proc { 'cats' })
+    context 'proc style' do
+      let(:route) do
+        Eldr::Route.new(handler: proc { 'cats' })
+      end
+
+      it 'returns cats' do
+        expect(route.call({})).to eq('cats')
+      end
     end
 
-    it 'returns cats' do
-      expect(route.call({})).to eq('cats')
+    context 'rails style' do
+      class Cats
+        def show(env)
+          'cats'
+        end
+      end
+
+      let(:route) { Eldr::Route.new(handler: 'Cats#show') }
+
+      it 'returns cats' do
+        expect(route.call({})).to eq('cats')
+      end
     end
   end
 end
