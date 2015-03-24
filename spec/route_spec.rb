@@ -24,4 +24,14 @@ describe Eldr::Route do
       end
     end
   end
+
+  describe '#call' do
+    let(:route) do
+      Eldr::Route.new(handler: proc { 'cats' })
+    end
+
+    it 'returns cats' do
+      expect(route.call({})).to eq('cats')
+    end
+  end
 end

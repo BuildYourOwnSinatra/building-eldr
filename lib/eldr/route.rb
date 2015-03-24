@@ -11,5 +11,11 @@ module Eldr
     def match(pattern)
       matcher.match(pattern)
     end
+
+    def call(env)
+      @env = env
+
+      @handler.call(env)
+    end
   end
 end
