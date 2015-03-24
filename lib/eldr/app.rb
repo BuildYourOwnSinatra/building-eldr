@@ -1,4 +1,5 @@
 require 'forwardable'
+require_relative 'configuration'
 require_relative 'builder'
 require_relative 'matcher'
 require_relative 'route'
@@ -6,10 +7,21 @@ require_relative 'recognizer'
 
 module Eldr
   class App
+    attr_accessor :configuration
+
     class << self
       extend Forwardable
-      attr_accessor :builder
+      attr_accessor :builder, :configuration
       def_delegators :builder, :map, :use
+
+      def configuration
+        @configuration ||= Configuration.new
+      end
+      alias_method :config, :configuration
+
+      def set(key, value)
+        configuration.set(key, value)
+      end
 
       def builder
         @builder ||= Builder.new
@@ -17,6 +29,7 @@ module Eldr
 
       def inherited(base)
         base.builder.use builder.middleware
+        base.configuration.merge!(configuration)
       end
 
       alias_method :_new, :new
@@ -83,6 +96,11 @@ module Eldr
           after_filters[route_name] << block
         end
       end
+    end
+
+    def initialize(configuration = nil)
+      configuration ||= self.class.configuration
+      @configuration = configuration
     end
 
     def self.recognizer

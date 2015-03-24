@@ -18,4 +18,14 @@ describe Eldr::App do
       expect(bob.after_filters[:cats].length).to eq(1)
     end
   end
+
+  describe '.inherited' do
+    it 'inherits configuration' do
+      bob = Class.new(Eldr::App)
+      bob.set(:bob, 'what about him?')
+
+      inherited = Class.new(bob)
+      expect(inherited.configuration.bob).to eq('what about him?')
+    end
+  end
 end
