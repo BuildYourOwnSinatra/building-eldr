@@ -36,7 +36,14 @@ module Eldr
 
       def add(verb: :get, path: '/', handler: nil)
         handler = Proc.new if block_given?
-        route =  Route.new(verb: verb, path: path, handler: handler)
+        route =  Route.new(verb: verb, path: path, name: name, handler: handler)
+
+        route.before_filters = before_filters[name] if before_filters.include? name
+        route.after_filters  = before_filters[name] if before_filters.include? name
+
+        route.before_filters.push(*before_filters[:all])
+        route.after_filters.push(*before_filters[:all])
+
         routes[verb] << route
         route
       end
@@ -50,6 +57,30 @@ module Eldr
           options ||= args.pop if args.last.is_a?(Hash)
           options ||= {}
           add({verb: verb.downcase.to_sym, path: path, handler: handler}.merge!(options))
+        end
+      end
+
+      def before_filters
+        @before_filters ||= { all: [] }
+      end
+
+      def after_filters
+        @after_filters ||= { all: [] }
+      end
+
+      def before(*route_names, &block)
+        *route_names = [:all] if route_names.empty?
+        route_names.each do |route_name|
+          before_filters[route_name] ||= []
+          before_filters[route_name] << block
+        end
+      end
+
+      def after(*route_names, &block)
+        *route_names = [:all] if route_names.empty?
+        route_names.each do |route_name|
+          after_filters[route_name] ||= []
+          after_filters[route_name] << block
         end
       end
     end

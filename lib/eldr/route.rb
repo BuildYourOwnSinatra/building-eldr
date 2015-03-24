@@ -1,6 +1,9 @@
 module Eldr
   class Route
+    attr_accessor :before_filters, :after_filters
+
     def initialize(verb: 'GET', path: '/', name: nil, handler: nil)
+      @before_filters, @after_filters = [], []
       @path, @verb, @name, @handler = path, verb.to_s.upcase, name, handler
       @handler = create_handler(handler)
     end
@@ -29,7 +32,10 @@ module Eldr
     def call(env)
       @env = env
 
-      @handler.call(env)
+      before_filters.each { |filter| filter.call(env) }
+      response = @handler.call(env)
+      after_filters.each { |filter| filter.call(env) }
+      response
     end
   end
 end

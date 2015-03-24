@@ -49,5 +49,31 @@ describe Eldr::Route do
         expect(route.call({})).to eq('cats')
       end
     end
+
+    context 'when there are before filters' do
+      let(:route) do
+        Eldr::Route.new(handler: proc { 'cats' })
+      end
+
+      it 'calls the before filters' do
+        called = false
+        route.before_filters << proc { called = true }
+        route.call({})
+        expect(called).to eq(true)
+      end
+    end
+
+    context 'when there are after filters' do
+      let(:route) do
+        Eldr::Route.new(handler: proc { 'cats' })
+      end
+
+      it 'calls the before filters' do
+        called = false
+        route.after_filters << proc { called = true }
+        route.call({})
+        expect(called).to eq(true)
+      end
+    end
   end
 end
