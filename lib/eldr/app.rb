@@ -103,7 +103,7 @@ module Eldr
 
       recognize(env).each do |route|
         env['eldr.route'] = route
-        catch(:pass) { return route.call(env) }
+        catch(:pass) { return route.call(env, app: self) }
       end
       rescue => error
         if error.respond_to? :call
