@@ -1,7 +1,30 @@
+require 'forwardable'
+require_relative 'builder'
+
 module Eldr
   class App
-    def self.call(env)
-      self.new.call()
+    class << self
+      extend Forwardable
+      attr_accessor :builder
+      def_delegators :builder, :map, :use
+
+      def builder
+        @builder ||= Builder.new
+      end
+
+      def inherited(base)
+        base.builder.use builder.middleware
+      end
+
+      alias_method :_new, :new
+      def new(*args, &block)
+        builder.run _new(*args, &block)
+        builder
+      end
+
+      def call(env)
+        new.call(env)
+      end
     end
 
     def call(env)
